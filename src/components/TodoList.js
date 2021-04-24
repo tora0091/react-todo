@@ -78,7 +78,7 @@ class TodoList extends React.Component {
                 <p>content: <input type="text" onInput={this.onInputContent}/></p>
                 <button onClick={this.onAddItem}>Submit</button>
                 <hr/>
-                {todoItems.map((item, index) => {
+                {todoItems && todoItems.map((item, index) => {
                     return (
                         <div key={index} >
                             <TodoItem item={item} onDelete={() => this.onDeleteItem(item.id)}/>
