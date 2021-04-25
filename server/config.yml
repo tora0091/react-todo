@@ -1,0 +1,6 @@
+database:
+  name: "./data/todos.db"
+  host: ""
+  username: ""
+  password: ""
+  port: ""

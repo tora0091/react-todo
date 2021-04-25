@@ -8,9 +8,8 @@ import (
 
 func main() {
 	db := infrastructure.NewDB()
-
-	r := infrastructure.NewRouting(db.Connection)
-	r.Run()
+	route := infrastructure.NewRouting(db.Connection)
+	route.Run()
 
 	defer db.Connection.Close()
 }

@@ -1,6 +1,8 @@
 package infrastructure
 
 import (
+	"github.com/tora0091/react-todo/server/config"
+
 	"database/sql"
 	"log"
 )
@@ -12,7 +14,7 @@ type DB struct {
 
 func NewDB() *DB {
 	db := &DB{
-		DBName: "./data/todos.db",
+		DBName: config.ConfigureString("database.name"),
 	}
 	db.getDBConnection()
 	return db
