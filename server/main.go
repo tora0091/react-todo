@@ -88,10 +88,11 @@ func main() {
 			Date:    time.Now().Format("2006-01-02"),
 		}
 
-		stmt, err := dbConn.Prepare("insert into todos (title, content, date) values (?, ?, ?)")
+		stmt, err := dbConn.Prepare("INSERT INTO todos (title, content, date) VALUES (?, ?, ?)")
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"message": "database error: prepare failed."})
 		}
+		defer stmt.Close()
 
 		result, err := stmt.Exec(newItem.Title, newItem.Content, newItem.Date)
 		if err != nil {
@@ -109,14 +110,16 @@ func main() {
 		item := Item{}
 		c.Bind(&item)
 
-		newItems := []Item{}
-		for _, itm := range ItemList {
-			if itm.Id != item.Id {
-				newItems = append(newItems, itm)
-			}
+		stmt, err := dbConn.Prepare("DELETE FROM todos WHERE id = ?")
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "database error: prepare failed."})
 		}
 
-		ItemList = newItems
+		_, err = stmt.Exec(item.Id)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "database error: delete failed."})
+		}
+
 		c.JSON(http.StatusOK, Item{
 			Id: item.Id,
 		})
