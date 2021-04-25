@@ -19,8 +19,6 @@ type Item struct {
 	Date    string `json:"date"`
 }
 
-var ItemList []Item
-
 // create table todos (
 // id integer primary key,
 // title text not null,
@@ -64,6 +62,7 @@ func main() {
 		}
 		defer rows.Close()
 
+		itemList := []Item{}
 		for rows.Next() {
 			var id int64
 			var title string
@@ -73,10 +72,9 @@ func main() {
 			if err := rows.Scan(&id, &title, &content, &date); err != nil {
 				log.Fatal(err)
 			}
-
-			ItemList = append(ItemList, Item{Id: id, Title: title, Content: content, Date: date})
+			itemList = append(itemList, Item{Id: id, Title: title, Content: content, Date: date})
 		}
-		c.JSON(http.StatusOK, ItemList)
+		c.JSON(http.StatusOK, itemList)
 	})
 	r.POST("/todo", func(c *gin.Context) {
 		item := Item{}
