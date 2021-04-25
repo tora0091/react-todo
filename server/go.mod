@@ -1,4 +1,4 @@
-module example.com/server
+module github.com/tora0091/react-todo/server
 
 go 1.15
 
