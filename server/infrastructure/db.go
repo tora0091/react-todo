@@ -4,7 +4,6 @@ import (
 	"github.com/tora0091/react-todo/server/config"
 
 	"database/sql"
-	"log"
 )
 
 type DB struct {
@@ -23,7 +22,7 @@ func NewDB() *DB {
 func (d *DB) getDBConnection() {
 	db, err := sql.Open("sqlite3", d.DBName)
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 	d.Connection = db
 
@@ -34,6 +33,6 @@ func (d *DB) getDBConnection() {
 		date TIMESTAMP DEFAULT (datetime(CURRENT_TIMESTAMP,'localtime'))
 	);`)
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 }
