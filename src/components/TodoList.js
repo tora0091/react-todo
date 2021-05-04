@@ -7,25 +7,38 @@ const TodoList = () => {
     const [inputTitle, setInputTitle] = useState("")
     const [inputContent, setInputContent] = useState("")
     const [todoItems, setTodoItems] = useState([])
+    const [isLoading, setIsLoading] = useState(false)
+    const [isError, setIsError] = useState(false)
 
-    useEffect(() => {
-        axios.get("http://localhost:9090/todo-items")
-        .then((response) => {
-            setTodoItems(response.data)
-        })
-        .catch((error) => {
-            console.log(error)
-        })
-    }, [])
     const onInputTitle = (e) => setInputTitle(e.target.value)
     const onInputContent = (e) => setInputContent(e.target.value )
 
-    const onAddItem = () => {
-        axios.post("http://localhost:9090/todo", {
-            title: inputTitle,
-            content: inputContent,
-        })
-        .then(response => {
+    useEffect(() => {
+        setIsError(false)
+
+        const fetchData = async () => {
+            try {
+                setIsLoading(true)
+                const response = await axios.get("http://localhost:9090/todo-items")
+                setTodoItems(response.data)
+            } catch (error) {
+                setIsError(true)
+            }
+        }
+
+        fetchData()
+        setIsLoading(false)
+    }, [])
+
+    const onAddItem = async () => {
+        setIsError(false)
+
+        try {
+            const response = await axios.post("http://localhost:9090/todo", {
+                title: inputTitle,
+                content: inputContent,
+            })
+
             if (response.status === 200) {
                 const res = response.data
                 const item = {
@@ -37,16 +50,19 @@ const TodoList = () => {
                 const newItems = todoItems.concat(item)
                 setTodoItems(newItems)
             } else {
+                setIsError(true)
                 console.log(response)
             }
-        })
-        .catch(error => {
+        } catch (error) {
+            setIsError(true)
             console.log(error)
-        })
+        }
     }
-    const onDeleteItem = (itemId) => {
-        axios.delete("http://localhost:9090/todo", {data: {id: itemId}})
-        .then(response => {
+    const onDeleteItem = async (itemId) => {
+        setIsError(false)
+
+        try {
+            const response = await axios.delete("http://localhost:9090/todo", {data: {id: itemId}})
             if (response.status === 200) {
                 const newItems = []
                 todoItems.forEach(item => {
@@ -56,12 +72,13 @@ const TodoList = () => {
                 })
                 setTodoItems(newItems)
             } else {
+                setIsError(true)
                 console.log(response)
             }
-        })
-        .catch(error => {
+        } catch (error) {
+            setIsError(true)
             console.log(error)
-        })
+        }
     }
     return (
         <div>
@@ -69,13 +86,20 @@ const TodoList = () => {
             <p>content: <input type="text" onChange={onInputContent}/></p>
             <button onClick={onAddItem}>Submit</button>
             <hr/>
-            {todoItems && todoItems.map((item, index) => {
-                return (
-                    <div key={index} >
-                        <TodoItem item={item} onDelete={() => onDeleteItem(item.id)}/>
-                    </div>
-                )
-            })}
+
+            {isError && <div>Sorry, Something wrong ...</div>}
+
+            {isLoading ? (
+                <div>Loading ...</div>
+            ) : (
+                todoItems && todoItems.map((item, index) => {
+                    return (
+                        <div key={index} >
+                            <TodoItem item={item} onDelete={() => onDeleteItem(item.id)}/>
+                        </div>
+                    )
+                })
+            )}
         </div>
     )
 }
